@@ -166,7 +166,7 @@ def run_dynamics(dargs):
     timesteps = dargs[1]
     plot = dargs[2]
     
-    if len(dargs) > 2:
+    if len(dargs) > 3:
         id_p1 = dargs[3]
         id_p2 = dargs[4]
         id_p3 = dargs[5]
@@ -193,25 +193,26 @@ def run_dynamics(dargs):
     if plot:
         print("overall:")
         plot_dynamic_solution(sol)
-        nns1 = []
-        for ii in id_p1:
-            if ii in index_dict:
-                nns1.append(index_dict[ii])
-        print("group 1:")
-        #plot_dynamic_solution_nodes(sol,nns)
-        nns2 = []
-        for ii in id_p2:
-            if ii in index_dict:
-                nns2.append(index_dict[ii])
-        print("group 2:")
-        #plot_dynamic_solution_nodes(sol,nns)
-        nns3 = []
-        for ii in id_p3:
-            if ii in index_dict:
-                nns3.append(index_dict[ii])
-        print("group 3:")
-        #plot_dynamic_solution_nodes(sol,nns)
-        plot_dynamic_solution_inv_es(sol,nns1,nns2,nns3)
+        if len(dargs) > 3:
+            nns1 = []
+            for ii in id_p1:
+                if ii in index_dict:
+                    nns1.append(index_dict[ii])
+            print("group 1:")
+            #plot_dynamic_solution_nodes(sol,nns)
+            nns2 = []
+            for ii in id_p2:
+                if ii in index_dict:
+                    nns2.append(index_dict[ii])
+            print("group 2:")
+            #plot_dynamic_solution_nodes(sol,nns)
+            nns3 = []
+            for ii in id_p3:
+                if ii in index_dict:
+                    nns3.append(index_dict[ii])
+            print("group 3:")
+            #plot_dynamic_solution_nodes(sol,nns)
+            plot_dynamic_solution_inv_es(sol,nns1,nns2,nns3)
     b_final = []
     for j in range(0,len(sol.y)):
         b_final.append(sol.y[j][len(sol.t)-1])
