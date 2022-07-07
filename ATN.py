@@ -9,6 +9,8 @@ import csv
 import os
 import niche
 from scipy import integrate
+import warnings
+import math
 
 #Dynamics function, takes in current state (Bis) and model parameters, outputs deltas (dBis)
 #Written to take in fixed parameters that are the same for all nodes (as in Romanuk 2009)
@@ -24,11 +26,14 @@ def atn(t,y,atn_args):
     b0 = atn_args[7]
     #map from node id to index in state vector y (b curr)
     index_dict = atn_args[8]
-    
-
-    
-    #Based on Williams and Martinez 2004 - https://link.springer.com/content/pdf/10.1140/epjb/e2004-00122-1.pdf
+        
     b_curr = y
+    
+    # FIX FOR IF IT GOES TO SMALL NEGATIVE #
+#     for k in range(0,len(b_curr)):
+#         if b_curr[k] < 0:
+#             b_curr[k] = 0 
+     
     dBs = np.zeros(len(b_curr))
     for i in G.nodes(): #by node id
                 
@@ -41,6 +46,7 @@ def atn(t,y,atn_args):
             b_sum = 0 #sum over i's resources for Fij
             for k in in_neigh_list:
                 b_sum += (b_curr[index_dict[k]]**(1+q))
+                
             Fij = (b_curr[index_dict[j]]**(1+q))/(b_sum + (b0**(1+q)))
             curr_gain = x*y_arg*Fij*b_curr[index_dict[i]]
             gains_from_resources += curr_gain
@@ -58,7 +64,7 @@ def atn(t,y,atn_args):
             for inl in range(0,len(j_in_neigh_list)):
                 j_in_neigh_list[inl] = j_in_neigh_list[inl][0]
             
-            for k in j_in_neigh_list:
+            for k in j_in_neigh_list:                
                 b_sum += (b_curr[index_dict[k]]**(1+q))
             Fji = (b_curr[index_dict[i]]**(1+q))/(b_sum + (b0**(1+q)))
 
@@ -67,6 +73,7 @@ def atn(t,y,atn_args):
 
         dBi = Gi - x*b_curr[index_dict[i]] + gains_from_resources - loss_from_consumers
         dBs[index_dict[i]] = dBi
+        
     return dBs
 
 # Generate parameters for the dynamic model for a web based on the Romanuk 2009 defaults
@@ -124,7 +131,7 @@ def plot_dynamic_solution_nodes(sol,ns):
     #plt.legend()
     plt.show()
     
-def plot_dynamic_solution_inv_es(sol,inv,intermediate,es):
+def plot_dynamic_solution_inv_es(sol,inv,intermediate,es,ttl):
     x = sol.t
     for i in range(0,len(sol.y)):
         if i in inv:
@@ -135,6 +142,7 @@ def plot_dynamic_solution_inv_es(sol,inv,intermediate,es):
             plt.plot(x, sol.y[i], label = "es species", c="yellow")
     # TEMPPP
     plt.ylim([0,0.25])
+    plt.title(ttl)
     plt.legend()
     plt.show()
     
@@ -162,11 +170,14 @@ def prune_web(G, b_curr,threshold):
 # function used to run a specified web for a specified number of timesteps
 def run_dynamics(dargs):
     
+    #warnings.simplefilter('error')
+    #print("without the fix!")
+    
     web_file = dargs[0]
     timesteps = dargs[1]
     plot = dargs[2]
     
-    if len(dargs) > 2:
+    if len(dargs) > 3:
         id_p1 = dargs[3]
         id_p2 = dargs[4]
         id_p3 = dargs[5]
@@ -193,25 +204,26 @@ def run_dynamics(dargs):
     if plot:
         print("overall:")
         plot_dynamic_solution(sol)
-        nns1 = []
-        for ii in id_p1:
-            if ii in index_dict:
-                nns1.append(index_dict[ii])
-        print("group 1:")
-        #plot_dynamic_solution_nodes(sol,nns)
-        nns2 = []
-        for ii in id_p2:
-            if ii in index_dict:
-                nns2.append(index_dict[ii])
-        print("group 2:")
-        #plot_dynamic_solution_nodes(sol,nns)
-        nns3 = []
-        for ii in id_p3:
-            if ii in index_dict:
-                nns3.append(index_dict[ii])
-        print("group 3:")
-        #plot_dynamic_solution_nodes(sol,nns)
-        plot_dynamic_solution_inv_es(sol,nns1,nns2,nns3)
+        if len(dargs) > 3:
+            nns1 = []
+            for ii in id_p1:
+                if ii in index_dict:
+                    nns1.append(index_dict[ii])
+            print("group 1:")
+            #plot_dynamic_solution_nodes(sol,nns)
+            nns2 = []
+            for ii in id_p2:
+                if ii in index_dict:
+                    nns2.append(index_dict[ii])
+            print("group 2:")
+            #plot_dynamic_solution_nodes(sol,nns)
+            nns3 = []
+            for ii in id_p3:
+                if ii in index_dict:
+                    nns3.append(index_dict[ii])
+            print("group 3:")
+            #plot_dynamic_solution_nodes(sol,nns)
+            plot_dynamic_solution_inv_es(sol,nns1,nns2,nns3,web_file)
     b_final = []
     for j in range(0,len(sol.y)):
         b_final.append(sol.y[j][len(sol.t)-1])
