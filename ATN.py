@@ -222,6 +222,7 @@ def run_dynamics(dargs):
                 if ii in index_dict:
                     nns3.append(index_dict[ii])
             print("group 3:")
+            #plot_dynamic_solution_nodes(sol,nns)
             plot_dynamic_solution_inv_es(sol,nns1,nns2,nns3,web_file)
     b_final = []
     for j in range(0,len(sol.y)):
