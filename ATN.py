@@ -143,7 +143,7 @@ def plot_dynamic_solution_inv_es(sol,inv,intermediate,es,ttl):
     # TEMPPP
     plt.ylim([0,0.25])
     plt.title(ttl)
-    plt.legend()
+    #plt.legend()
     plt.show()
     
 def prune_web(G, b_curr,threshold):

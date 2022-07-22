@@ -52,7 +52,7 @@ def niche_model(S,C):
             #gather set of neighbors
             in_neighs = []
             in_neigh_list = list(curr_web.in_edges([node]))
-            for in_neigh in in_neigh_list: #curr_web.in_degree(node):
+            for in_neigh in in_neigh_list: 
                 in_neighs.append(in_neigh[0])
             in_neighs = tuple(in_neighs)
             out_neighs = []
@@ -133,166 +133,10 @@ def niche_model(S,C):
         
     return nis, ris, cis, web
 
-
-
-
-# # Niche model generation
-# def niche_model_old(S,C):
-        
-#     nis = {}
-#     ris = {}
-#     cis = {}
-        
-#     web = nx.DiGraph()
-        
-#     #generate parameters for a node
-#     def get_params():
-        
-#         B = (1 - 2*C)/(2*C)
-        
-#         #assign each species a niche value, ni
-#         ni = random.uniform(0,1)
-      
-#         #assign each species a range, ri
-#         y = random.uniform(0,1)
-#         x = 1 - (1-y)**(1/B)
-#         #x = beta.rvs(1, B, size=1)[0]
-        
-#         ri = x*ni
-        
-#         #assign each species a center of the range, ci
-#         ci = random.uniform(ri/2,ni)
-        
-#         return [ni,ri,ci]
-            
-#     for i in range(0,S):
-#         params = get_params()
-#         nis[i] = params[0]
-#         ris[i] = params[1]
-#         cis[i] = params[2]        
-#         #add a node for each species
-#         web.add_node(i)
-
-#     #set ri to 0 for species with smallest ni (basal)
-#     min_ni = 1000000000
-#     min_ni_id = -1
-#     for key in nis.keys():
-#         if nis[key] < min_ni:
-#             min_ni = nis[key]
-#             min_ni_id = key
-       
-#     ris[min_ni_id] = 0
-    
-#     def assign_links(curr_web):
-#         #figure out who each species eats
-#         for i in range(0,S):
-#             lower_bound = cis[i] - ris[i]/2
-#             upper_bound = cis[i] + ris[i]/2
-#             for j in range(0,S):
-#                 if lower_bound < nis[j] and nis[j] < upper_bound:
-#                     curr_web.add_edge(j,i)
-    
-#     assign_links(web)
-        
-#     #helper function to find trophically identical species 
-#     def find_trophic_id(curr_web):    
-                
-#         edge_check = {}
-#         trophic_id = []
-#         for node in curr_web.nodes(): 
-                      
-#             #gather set of neighbors
-#             in_neighs = []
-#             in_neigh_list = list(curr_web.in_edges([node]))
-#             for in_neigh in in_neigh_list: #curr_web.in_degree(node):
-#                 in_neighs.append(in_neigh[0])
-#             in_neighs = tuple(in_neighs)
-#             out_neighs = []
-#             out_neigh_list = list(curr_web.out_edges([node]))
-#             for out_neigh in out_neigh_list:
-#                 out_neighs.append(out_neigh[1])
-#             out_neighs = tuple(out_neighs)
-
-#             #check to see if another species has the same neighbor set
-#             check_key = (in_neighs, out_neighs)
-#             if check_key not in edge_check:
-#                 edge_check[check_key] = [node]
-#             else:
-#                 edge_check[check_key].append(node)
-                
-#         #save all but one of the identical species to be replaced - updated to be random choice outside of loop 5/5/2022
-#         for edge_k in edge_check:
-#             if len(edge_check
-
-#             to_replace = np.random.choice(edge_check[check_key])
-#             if to_replace not in 
-#             trophic_id.append(np.random.choice[])
-            
-#         return trophic_id
-    
-#     #Check for and replace isolates and trophically identical species
-    
-#     # 5/5/2022 - trying removing and replacing one species at a time
-    
-#     # TO DO - pretty sure this works but should double, triple check
-    
-# #     isolates = True if nx.number_of_isolates(web) > 0 else False
-# #     trophic = True if len(find_trophic_id(web)) > 0 else False
-# #     it = 0 
-# #     while (isolates or trophic):
-    
-# #         web2 = nx.DiGraph()
-        
-# #         #replace any isolates
-# #         for iso in nx.isolates(web):
-
-# #             #replace parameters of isolate nodes
-# #             params = get_params()
-            
-# #             nis[iso] = params[0]
-# #             ris[iso] = params[1]
-# #             cis[iso] = params[2]
-        
-# #         #replace any trophically identical species
-# #         for ti in find_trophic_id(web):
-            
-# #             #replace parameters of trophically identical nodes
-# #             params = get_params()
-            
-# #             nis[ti] = params[0]
-# #             ris[ti] = params[1]
-# #             cis[ti] = params[2]
-        
-# #         # NEW 05/03/2022 --  reset ri to 0 for species with smallest ni (basal)
-# #         # (Though pretty unlikely this would get replaced, should check!) 
-# #         min_ni = 1000000000
-# #         min_ni_id = -1
-# #         for key in nis.keys():
-# #             if nis[key] < min_ni:
-# #                 min_ni = nis[key]
-# #                 min_ni_id = key
-        
-# #         ris[min_ni_id] = 0
-                
-# #         #clear and reassign links based on new parameters
-# #         web2.add_nodes_from(web)
-# #         assign_links(web2)
-# #         web = web2
-
-# #         isolates = True if nx.number_of_isolates(web) > 0 else False
-# #         trophic = True if len(find_trophic_id(web)) > 0 else False
-# #         it+=1
-        
-#     return nis, ris, cis, web
-
 # Returns whether the potential synthetic food web is "plausible" in terms of energy flow
+# You don't want a loop with has no basal food source
 def check_web(G):
 
-    # Per Romanuk:
-    # webs with biologically implausible energy flow patterns, such as loops with no 
-    # external energy source (e.g. cannibals with no other food source), were excluded from further consideration. 
-    # Is there a methods paper somewhere about how to do this?? Like what other "such as"?
-    
     # detect loops
     loops = nx.algorithms.cycles.simple_cycles(G)
     
@@ -301,7 +145,6 @@ def check_web(G):
     # so, travelling back via in neighbors, one eventually reaches one that has no in neighbors itself
     lct = 0 
     for loop in loops:
-        #print("checking loop - " + str(lct))
         loop_okay = False
         for node in loop:
             if not loop_okay:
@@ -323,7 +166,6 @@ def check_web(G):
                             #reached a basal species, this loop is okay
                             loop_okay = True
                             #can immediately end this while loop
-                            #keep_checking_node = False
                             break
                         if in_neigh not in visited:
                             stack.append(in_neigh)
@@ -334,7 +176,8 @@ def check_web(G):
     
     return True # if all loops are okay, return that the web is plausible
 
-#note - re-wrote to expect dictionaries
+# helper function to write the food web to a file in a standard format
+# Three files: node list, edge list, niche model parameter + biomass details 
 def write_web_to_file(weby,nis,ris,cis,b,stem):
     
     #node file
@@ -361,6 +204,7 @@ def write_web_to_file(weby,nis,ris,cis,b,stem):
     node_file.close()
     edge_file.close()
         
+# helper function to read the food web from file using the standard format
 def read_web_from_file(stem):
     
     web = nx.DiGraph()
@@ -434,6 +278,7 @@ def viz_web_inv_es_int(G,inv_ids,es_ids,int_ids):
     nx.draw_networkx(G,with_labels=True,pos=posi,node_color=colors)
     plt.show()
     
+# get basal species (only consumers, no resources)
 def get_basal_ids(net):
     basal_species = []
     
@@ -446,7 +291,7 @@ def get_basal_ids(net):
             
         in_neighs = []
         in_neigh_list = list(net.in_edges([node]))
-        for in_neigh in in_neigh_list: #curr_web.in_degree(node):
+        for in_neigh in in_neigh_list: 
             in_neighs.append(in_neigh[0])
             
         if len(out_neighs) > 0 and len(in_neighs) == 0:
@@ -454,6 +299,7 @@ def get_basal_ids(net):
             
     return basal_species
 
+# get intermediate species (both resources and consumers)
 def get_intermediate_ids(net):
     int_species = []
     for node in net.nodes():
@@ -466,7 +312,7 @@ def get_intermediate_ids(net):
             
         in_neighs = []
         in_neigh_list = list(net.in_edges([node]))
-        for in_neigh in in_neigh_list: #curr_web.in_degree(node):
+        for in_neigh in in_neigh_list: 
             in_neighs.append(in_neigh[0])
             
         if len(out_neighs) > 0 and len(in_neighs) > 0:
