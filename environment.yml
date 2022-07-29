@@ -1,0 +1,14 @@
+
+
+name: species_risk
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.8
+  - jupyter
+  - pandas
+  - numpy
+  - matplotlib
+  - scipy
+  - networkx
