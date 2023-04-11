@@ -203,7 +203,21 @@ def write_web_to_file(weby,nis,ris,cis,b,stem):
         
     node_file.close()
     edge_file.close()
-        
+
+# helper function to generate links based on niche model parameters (same as in niche function) 
+def assign_links(webb,cc,rr,nn):
+    # figure out who each species eats
+    S = webb.nodes()
+    for x in S:
+        for y in S:
+            # x eats those with ny in rx around cx
+            lower_bound = cc[x] - rr[x]/2
+            upper_bound = cc[x] + rr[x]/2
+            if lower_bound < nn[y] and nn[y] < upper_bound:
+                # x eats y, add edge from y to x 
+                webb.add_edge(y,x)
+    return webb
+
 # helper function to read the food web from file using the standard format
 def read_web_from_file(stem):
     
@@ -294,6 +308,7 @@ def get_basal_ids(net):
         for in_neigh in in_neigh_list: 
             in_neighs.append(in_neigh[0])
             
+        # consumers but no resources 
         if len(out_neighs) > 0 and len(in_neighs) == 0:
             basal_species.append(node)
             
